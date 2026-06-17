@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics 20 Study Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Neutral palette */
+    --bg:#f6f5f3;
+    --bg-elev:#ffffff;
+    --bg-sunken:#efeeeb;
+    --bg-card-back:#fafaf8;
+    --text:#1d1d1f;
+    --text-soft:#6e6e73;
+    --text-faint:#9a9a9e;
+    --border:#e6e4e0;
+    --border-strong:#d7d5d0;
+    /* Charcoal primary accent */
+    --accent:#33343a;
+    --accent-hover:#1d1d1f;
+    --on-accent:#ffffff;
+    /* One muted secondary accent (slate) */
+    --accent2:#4a6b7c;
+    --accent2-soft:#e7eef1;
+    /* Muted status colors */
+    --good:#3f7a5c;
+    --good-bg:#e8f1ec;
+    --warn:#b1733c;
+    --warn-bg:#f6ece0;
+    --bad:#a8503f;
+    --bad-bg:#f4e6e2;
+    --shadow-sm:0 1px 2px rgba(20,20,20,0.05);
+    --shadow-md:0 4px 16px rgba(20,20,20,0.07);
+    --shadow-lg:0 14px 34px rgba(20,20,20,0.10);
+    --ease:cubic-bezier(.4,0,.2,1);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    justify-content:center;
+    padding:28px 16px 72px;
+    opacity:0;
+    transition:opacity 0.5s var(--ease);
+  }
+  body.ready{ opacity:1; }
+  .app{ width:100%; max-width:600px; }
+
+  /* ---------- Typography ---------- */
+  h1{ font-weight:700; font-size:28px; margin:0 0 6px; letter-spacing:-0.02em; }
+  h2{ font-weight:700; font-size:20px; margin:0 0 4px; letter-spacing:-0.01em; }
+  h3{ font-weight:600; font-size:15px; margin:0 0 10px; letter-spacing:-0.005em; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--text-faint); margin:0 0 8px;
+  }
+  .subtitle{ font-size:14px; color:var(--text-soft); margin:0; line-height:1.5; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+
+  /* ---------- Header ---------- */
+  header.site{ text-align:center; margin-bottom:20px; }
+
+  /* ---------- Mode navigation ---------- */
+  .nav{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:4px;
+    padding:5px; margin-bottom:26px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:var(--shadow-sm);
+  }
+  .nav-btn{
+    flex:0 1 auto;
+    background:transparent; border:none;
+    color:var(--text-soft);
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:500;
+    padding:9px 14px; border-radius:10px; cursor:pointer;
+    white-space:nowrap;
+    transition:color 0.2s var(--ease), background 0.2s var(--ease);
+  }
+  .nav-btn:hover{ color:var(--text); background:var(--bg-sunken); }
+  .nav-btn.active{ color:var(--on-accent); background:var(--accent); font-weight:600; }
+
+  /* ---------- Screens with fade + slide ---------- */
+  .screen{ display:none; }
+  .screen.active{ display:block; animation:screenIn 0.42s var(--ease); }
+  @keyframes screenIn{
+    from{ opacity:0; transform:translateY(12px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .screen-head{ margin-bottom:18px; }
+
+  /* ---------- Chapter chips ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+  .chip{
+    background:var(--bg-elev); border:1px solid var(--border);
+    color:var(--text-soft);
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:500;
+    padding:8px 13px; border-radius:999px; cursor:pointer;
+    transition:all 0.18s var(--ease);
+    box-shadow:var(--shadow-sm);
+  }
+  .chip:hover{ border-color:var(--border-strong); color:var(--text); transform:translateY(-1px); }
+  .chip.active{ background:var(--accent); border-color:var(--accent); color:var(--on-accent); font-weight:600; }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+    padding:13px 22px; border-radius:12px; cursor:pointer;
+    border:1px solid transparent;
+    transition:transform 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease), border-color 0.18s var(--ease);
+  }
+  .btn-primary{ background:var(--accent); color:var(--on-accent); box-shadow:var(--shadow-sm); }
+  .btn-primary:hover{ background:var(--accent-hover); box-shadow:var(--shadow-md); transform:translateY(-1px); }
+  .btn-primary:active{ transform:translateY(0); }
+  .btn-secondary{ background:var(--bg-elev); color:var(--text); border-color:var(--border-strong); box-shadow:var(--shadow-sm); }
+  .btn-secondary:hover{ box-shadow:var(--shadow-md); transform:translateY(-1px); }
+  .btn-secondary:active{ transform:translateY(0); }
+  .btn-block{ width:100%; }
+  .btn:disabled{ opacity:0.45; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  .ghost-btn{
+    background:none; border:none; color:var(--text-faint);
+    text-decoration:underline; text-decoration-color:var(--border-strong);
+    cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:11.5px;
+    padding:2px 0; transition:color 0.2s var(--ease);
+  }
+  .ghost-btn:hover{ color:var(--text); }
+
+  /* ---------- Generic card / panel ---------- */
+  .panel{
+    background:var(--bg-elev); border:1px solid var(--border);
+    border-radius:var(--radius); padding:22px; box-shadow:var(--shadow-md);
+  }
+
+  /* ---------- Meta + progress ---------- */
+  .meta-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono',monospace; font-size:11.5px;
+    color:var(--text-faint); margin-bottom:10px; padding:0 2px;
+  }
+  .progress-track{ height:5px; background:var(--border); border-radius:5px; overflow:hidden; margin-bottom:22px; }
+  .progress-fill{ height:100%; background:var(--accent); border-radius:5px; transition:width 0.4s var(--ease); }
+
+  /* ---------- Flashcards ---------- */
+  .scene{ perspective:1600px; margin-bottom:18px; }
+  .card{
+    position:relative; width:100%; min-height:300px;
+    transform-style:preserve-3d; transition:transform 0.6s var(--ease); cursor:pointer;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:18px; border:1px solid var(--border);
+    padding:22px 24px 18px; display:flex; flex-direction:column;
+    box-shadow:var(--shadow-md);
+  }
+  .face.front{ background:var(--bg-elev); }
+  .face.back{ background:var(--bg-card-back); transform:rotateY(180deg); }
+  .tag{
+    align-self:flex-start; font-family:'JetBrains Mono',monospace;
+    font-size:10px; letter-spacing:0.06em; padding:4px 10px; border-radius:20px; margin-bottom:14px;
+    background:var(--accent2-soft); color:var(--accent2);
+  }
+  .face-body{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:6px 2px;
+    transition:opacity 0.18s var(--ease), transform 0.18s var(--ease);
+  }
+  .face-body.content-hidden{ opacity:0; transform:translateY(5px); }
+  .term-text{ font-size:27px; font-weight:700; line-height:1.3; letter-spacing:-0.01em; }
+  .def-text{ font-size:16px; line-height:1.6; color:var(--text); }
+  .hint{
+    text-align:center; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    letter-spacing:0.05em; color:var(--text-faint); margin-top:6px;
+  }
+  .wave-wrap{ height:30px; overflow:hidden; margin:0 -24px 14px; border-bottom:1px solid var(--border); }
+  .wave-track{ width:1600px; height:30px; animation:wave-flow 3s linear infinite; }
+  .card.flipped .wave-track{ animation-play-state:paused; }
+  .wave-g{ transition:transform 0.55s var(--ease); transform-origin:center; }
+  .card.flipped .wave-g{ transform:scaleY(0.04); }
+  @keyframes wave-flow{ from{ transform:translateX(0); } to{ transform:translateX(-800px); } }
+
+  .controls{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .nav-circle{
+    flex:0 0 auto; width:46px; height:46px; border-radius:50%;
+    border:1px solid var(--border); background:var(--bg-elev); color:var(--text);
+    font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
+    box-shadow:var(--shadow-sm);
+  }
+  .nav-circle:hover{ border-color:var(--border-strong); box-shadow:var(--shadow-md); transform:translateY(-1px); }
+  .nav-circle:active{ transform:translateY(0); }
+  .flip-btn{
+    flex:1; height:46px; border-radius:23px; border:1px solid var(--border-strong);
+    background:var(--bg-elev); color:var(--text);
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer;
+    transition:transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    box-shadow:var(--shadow-sm);
+  }
+  .flip-btn:hover{ box-shadow:var(--shadow-md); transform:translateY(-1px); }
+  .flip-btn:active{ transform:translateY(0); }
+  .rate-row{ display:flex; gap:10px; margin-bottom:18px; min-height:46px; }
+  .rate-btn{
+    flex:1; height:46px; border-radius:12px; border:1px solid var(--border);
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer;
+    transition:opacity 0.25s var(--ease), transform 0.2s var(--ease), border-color 0.2s var(--ease);
+    opacity:0; pointer-events:none; transform:translateY(4px);
+  }
+  .card.flipped ~ .rate-row .rate-btn{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  .rate-btn.learning{ background:var(--warn-bg); color:var(--warn); }
+  .rate-btn.known{ background:var(--good-bg); color:var(--good); }
+  .rate-btn:hover{ border-color:currentColor; }
+  .rate-btn:active{ transform:translateY(1px); }
+  .footer-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);
+  }
+  .stats{ display:flex; gap:14px; }
+  .stat b{ color:var(--text); font-weight:600; }
+
+  /* ---------- Quiz (definitions / equations / cumulative) ---------- */
+  .q-prompt{ font-size:18px; font-weight:600; line-height:1.5; margin:0 0 6px; }
+  .q-context{ font-size:13.5px; color:var(--text-soft); line-height:1.6; margin:0; }
+  .q-chaplabel{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px;
+    letter-spacing:0.06em; color:var(--accent2); background:var(--accent2-soft);
+    padding:4px 10px; border-radius:20px; margin-bottom:14px;
+  }
+  .options{ display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+  .option{
+    text-align:left; background:var(--bg-elev); border:1px solid var(--border);
+    color:var(--text); font-family:'Inter',sans-serif; font-size:14.5px; line-height:1.5;
+    padding:14px 16px; border-radius:12px; cursor:pointer;
+    transition:border-color 0.18s var(--ease), background 0.18s var(--ease), transform 0.12s var(--ease);
+  }
+  .option:hover:not(:disabled){ border-color:var(--accent2); transform:translateY(-1px); }
+  .option:disabled{ cursor:default; }
+  .option.correct{ background:var(--good-bg); border-color:var(--good); color:var(--good); font-weight:600; }
+  .option.wrong{ background:var(--bad-bg); border-color:var(--bad); color:var(--bad); font-weight:600; }
+  .option.muted{ opacity:0.55; }
+
+  .answer-row{ display:flex; gap:10px; margin-top:18px; align-items:stretch; }
+  .answer-input{
+    flex:1; min-width:0; font-family:'JetBrains Mono',monospace; font-size:16px;
+    padding:13px 15px; border:1px solid var(--border-strong); border-radius:12px;
+    background:var(--bg-elev); color:var(--text);
+    transition:border-color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+  }
+  .answer-input:focus{ outline:none; border-color:var(--accent2); box-shadow:0 0 0 3px var(--accent2-soft); }
+  .answer-input.correct{ border-color:var(--good); }
+  .answer-input.wrong{ border-color:var(--bad); }
+
+  .feedback{
+    margin-top:16px; padding:14px 16px; border-radius:12px; font-size:14px; line-height:1.55;
+    animation:screenIn 0.3s var(--ease);
+  }
+  .feedback.good{ background:var(--good-bg); color:var(--good); }
+  .feedback.bad{ background:var(--bad-bg); color:var(--bad); }
+  .feedback b{ font-weight:700; }
+  .solution{
+    margin-top:14px; background:var(--bg-sunken); border:1px solid var(--border);
+    border-radius:12px; padding:16px; animation:screenIn 0.3s var(--ease);
+  }
+  .sol-line{ display:flex; gap:10px; padding:5px 0; font-size:13.5px; line-height:1.5; }
+  .sol-line .label{
+    flex:0 0 88px; font-family:'JetBrains Mono',monospace; font-size:10px;
+    letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); padding-top:2px;
+  }
+  .sol-line .value{ font-family:'JetBrains Mono',monospace; color:var(--text); }
+  .sol-line .value.answer{ color:var(--accent2); font-weight:600; }
+
+  /* ---------- Start / result panels ---------- */
+  .start-card{ text-align:center; padding:34px 24px; }
+  .start-card .big-num{ font-size:46px; font-weight:700; letter-spacing:-0.02em; margin:6px 0; }
+  .lead{ font-size:15px; color:var(--text-soft); line-height:1.6; margin:0 auto 22px; max-width:380px; }
+
+  .score-ring{ font-size:52px; font-weight:700; letter-spacing:-0.02em; margin:8px 0 2px; }
+  .score-sub{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-faint); margin-bottom:6px; }
+
+  /* ---------- Bars (dashboard + breakdown) ---------- */
+  .bar-row{ margin-bottom:16px; }
+  .bar-label{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px; }
+  .bar-label .name{ font-size:14px; font-weight:600; }
+  .bar-label .val{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-soft); }
+  .bar-track{ height:8px; background:var(--bg-sunken); border-radius:8px; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:8px; width:0; transition:width 0.6s var(--ease); }
+  .bar-fill.flash{ background:var(--accent2); }
+  .bar-fill.defs{ background:var(--good); }
+  .bar-fill.eqs{ background:var(--warn); }
+
+  .dash-chapter{ background:var(--bg-elev); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:14px; box-shadow:var(--shadow-sm); }
+  .dash-chapter h3{ margin-bottom:14px; }
+  .legend{ display:flex; flex-wrap:wrap; gap:16px; margin-bottom:20px; font-size:12px; color:var(--text-soft); }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .dot{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .dot.flash{ background:var(--accent2); } .dot.defs{ background:var(--good); } .dot.eqs{ background:var(--warn); }
+
+  /* ---------- Reference ---------- */
+  .ref-section{ margin-bottom:26px; }
+  .ref-section h3{ padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .ref-list{ list-style:none; margin:0; padding:0; }
+  .ref-list li{
+    display:flex; justify-content:space-between; gap:14px; align-items:baseline;
+    padding:9px 0; border-bottom:1px solid var(--border); font-size:13.5px;
+  }
+  .ref-list li:last-child{ border-bottom:none; }
+  .ref-list .desc{ color:var(--text-soft); }
+  .ref-list .eq{ font-family:'JetBrains Mono',monospace; color:var(--text); font-weight:500; text-align:right; white-space:nowrap; }
+  .const-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .const-card{ background:var(--bg-sunken); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+  .const-card .k{ font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:600; }
+  .const-card .d{ font-size:12.5px; color:var(--text-soft); margin-top:3px; }
+
+  .section-spacer{ height:8px; }
+  .loading{ text-align:center; color:var(--text-faint); padding:60px 0; font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .empty-state{ text-align:center; color:var(--text-soft); padding:50px 10px; font-size:14px; }
+  .hidden{ display:none !important; }
+
+  /* ---------- Desktop refinements ---------- */
+  @media (min-width:680px){
+    body{ padding:48px 24px 96px; }
+    .const-grid{ grid-template-columns:1fr 1fr; }
+    h1{ font-size:31px; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <header class="site">
+    <p class="eyebrow">Alberta curriculum &middot; Units A&ndash;D</p>
+    <h1>Physics 20 Study Suite</h1>
+    <p class="subtitle">Flashcards, equation drills, and practice tests for all 8 chapters.</p>
+  </header>
+
+  <nav class="nav" id="nav">
+    <button class="nav-btn active" data-screen="flashcards">Flashcards</button>
+    <button class="nav-btn" data-screen="definitions">Definitions</button>
+    <button class="nav-btn" data-screen="equations">Equation test</button>
+    <button class="nav-btn" data-screen="cumulative">Cumulative test</button>
+    <button class="nav-btn" data-screen="reference">Reference</button>
+    <button class="nav-btn" data-screen="dashboard">Dashboard</button>
+  </nav>
+
+  <div id="loading" class="loading">Loading your saved progress&hellip;</div>
+
+  <main id="main" class="hidden">
+
+    <!-- ============ FLASHCARDS ============ -->
+    <section class="screen active" id="screen-flashcards">
+      <div class="screen-head">
+        <h2>Flashcards</h2>
+        <p class="subtitle">Tap a card to flip it, then mark whether you knew it.</p>
+      </div>
+      <div class="chips" id="fc-chips"></div>
+
+      <div class="meta-row">
+        <span id="pos-label">Card 1 of 1</span>
+        <span id="filter-label">All terms</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+      <div id="fc-study">
+        <div class="scene">
+          <div class="card" id="card">
+            <div class="wave-wrap">
+              <svg class="wave-track" viewBox="0 0 800 30" preserveAspectRatio="none">
+                <g class="wave-g">
+                  <path d="M0,15 C 25,3 50,3 75,15 C 100,27 125,27 150,15 C 175,3 200,3 225,15 C 250,27 275,27 300,15 C 325,3 350,3 375,15 C 400,27 425,27 450,15 C 475,3 500,3 525,15 C 550,27 575,27 600,15 C 625,3 650,3 675,15 C 700,27 725,27 750,15 C 775,3 800,3 800,15"
+                        fill="none" stroke="#b8b6b1" stroke-width="2" stroke-linecap="round"/>
+                </g>
+              </svg>
+            </div>
+            <div class="face front">
+              <span class="tag" id="tag-front">Ch.1</span>
+              <div class="face-body" id="body-front"><div class="term-text" id="term-text">Term</div></div>
+              <p class="hint">Tap card to reveal definition</p>
+            </div>
+            <div class="face back">
+              <span class="tag" id="tag-back">Ch.1</span>
+              <div class="face-body" id="body-back"><div class="def-text" id="def-text">Definition</div></div>
+              <p class="hint">Tap card to flip back</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="nav-circle" id="prev-btn" aria-label="Previous card">&larr;</button>
+          <button class="flip-btn" id="flip-btn">Flip card</button>
+          <button class="nav-circle" id="next-btn" aria-label="Next card">&rarr;</button>
+        </div>
+
+        <div class="rate-row">
+          <button class="rate-btn learning" id="learning-btn">Still learning</button>
+          <button class="rate-btn known" id="known-btn">Got it</button>
+        </div>
+
+        <div class="footer-row">
+          <div class="stats">
+            <span class="stat"><b id="known-count">0</b> known</span>
+            <span class="stat"><b id="learning-count">0</b> learning</span>
+          </div>
+          <button class="ghost-btn" id="shuffle-btn">Shuffle</button>
+        </div>
+      </div>
+      <div id="fc-empty" class="empty-state hidden">No terms in this chapter.</div>
+    </section>
+
+    <!-- ============ DEFINITIONS TEST ============ -->
+    <section class="screen" id="screen-definitions">
+      <div class="screen-head">
+        <h2>Definitions test</h2>
+        <p class="subtitle">Match each term to its correct definition. Multiple choice.</p>
+      </div>
+      <div id="def-setup">
+        <div class="chips" id="def-chips"></div>
+        <button class="btn btn-primary btn-block" id="def-start">Start definitions test</button>
+      </div>
+      <div id="def-quiz" class="hidden"></div>
+      <div id="def-result" class="hidden"></div>
+    </section>
+
+    <!-- ============ EQUATION TEST ============ -->
+    <section class="screen" id="screen-equations">
+      <div class="screen-head">
+        <h2>Equation test</h2>
+        <p class="subtitle">Pick a chapter, solve each problem, then check the full worked solution.</p>
+      </div>
+      <div id="eq-setup">
+        <div class="chips" id="eq-chips"></div>
+        <button class="btn btn-primary btn-block" id="eq-start" disabled>Choose a chapter to begin</button>
+      </div>
+      <div id="eq-quiz" class="hidden"></div>
+      <div id="eq-result" class="hidden"></div>
+    </section>
+
+    <!-- ============ CUMULATIVE TEST ============ -->
+    <section class="screen" id="screen-cumulative">
+      <div class="screen-head">
+        <h2>Cumulative test</h2>
+        <p class="subtitle">A mixed unit test pulling problems and definitions from all 8 chapters.</p>
+      </div>
+      <div id="cum-setup">
+        <div class="panel start-card">
+          <p class="eyebrow">Full unit simulation</p>
+          <div class="big-num" id="cum-count-preview">22</div>
+          <p class="lead">Randomly mixed equation problems and definition questions across every chapter. You'll get a score and a chapter-by-chapter breakdown at the end.</p>
+          <button class="btn btn-primary" id="cum-start">Start cumulative test</button>
+        </div>
+      </div>
+      <div id="cum-quiz" class="hidden"></div>
+      <div id="cum-result" class="hidden"></div>
+    </section>
+
+    <!-- ============ REFERENCE ============ -->
+    <section class="screen" id="screen-reference">
+      <div class="screen-head">
+        <h2>Formula &amp; constants reference</h2>
+        <p class="subtitle">Look anything up mid-test. Organized by chapter.</p>
+      </div>
+      <div id="ref-content"></div>
+    </section>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="screen" id="screen-dashboard">
+      <div class="screen-head">
+        <h2>Progress dashboard</h2>
+        <p class="subtitle">Mastery per chapter across every study mode.</p>
+      </div>
+      <div class="legend">
+        <span><i class="dot flash"></i> Flashcards known</span>
+        <span><i class="dot defs"></i> Definitions accuracy</span>
+        <span><i class="dot eqs"></i> Equation accuracy</span>
+      </div>
+      <div id="dash-content"></div>
+      <div style="text-align:center; margin-top:24px;">
+        <button class="ghost-btn" id="reset-all">Reset all progress</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   DATA
+   ============================================================ */
+const STORAGE_KEY = 'physics20-suite-v1';
+
+const CHAPTERS = [
+  { id:'ch1', n:1, title:'Motion in One Direction', short:'Motion 1D' },
+  { id:'ch2', n:2, title:'Vectors & 2D Motion',     short:'Vectors 2D' },
+  { id:'ch3', n:3, title:"Forces & Newton's Laws",  short:'Forces' },
+  { id:'ch4', n:4, title:'Gravitation',             short:'Gravitation' },
+  { id:'ch5', n:5, title:'Circular Motion',         short:'Circular' },
+  { id:'ch6', n:6, title:'Work & Energy',           short:'Energy' },
+  { id:'ch7', n:7, title:'Oscillatory Motion',      short:'Oscillations' },
+  { id:'ch8', n:8, title:'Mechanical Waves',        short:'Waves' },
+];
+const CH_MAP = Object.fromEntries(CHAPTERS.map(c => [c.id, c]));
+const chShort = id => 'Ch.' + CH_MAP[id].n;
+
+/* Flashcard terms: [term, definition, chapterId] */
+const TERMS = [
+  // ---- Chapter 1 ----
+  ["Origin","The reference point chosen as zero on a coordinate system, from which all positions are measured.","ch1"],
+  ["Position","An object's location relative to a chosen origin, including direction. A vector quantity.","ch1"],
+  ["Distance","The total length of the path travelled, regardless of direction. A scalar quantity.","ch1"],
+  ["Displacement","The straight-line change in position from start to finish, including direction. A vector quantity.","ch1"],
+  ["Scalar quantity","A quantity described by magnitude (size) only, with no direction, such as distance or speed.","ch1"],
+  ["Vector quantity","A quantity described by both magnitude and direction, such as displacement or velocity.","ch1"],
+  ["Speed","How fast an object moves, the rate of change of distance. A scalar. speed = distance / time.","ch1"],
+  ["Velocity","The rate of change of position, including direction. A vector. v = displacement / time.","ch1"],
+  ["Average velocity","Total displacement divided by the total time taken. v_avg = Δd / Δt.","ch1"],
+  ["Instantaneous velocity","The velocity of an object at one specific instant in time.","ch1"],
+  ["Uniform motion","Motion in a straight line at constant velocity, with zero acceleration.","ch1"],
+  ["Acceleration","The rate of change of velocity, including direction. a = Δv / Δt. Units: m/s².","ch1"],
+  ["Frame of reference","The set of coordinates, including an origin, that an observer uses to measure position and motion.","ch1"],
+  ["Free fall","Motion under the influence of gravity alone, with acceleration g = 9.81 m/s² downward.","ch1"],
+
+  // ---- Chapter 2 ----
+  ["Vector diagram","A scaled drawing that uses arrows to represent the magnitude and direction of vectors.","ch2"],
+  ["Resultant vector","The single vector that has the same effect as two or more vectors added together.","ch2"],
+  ["Collinear vectors","Vectors that lie along the same straight line, pointing in the same or opposite directions.","ch2"],
+  ["Components of a vector","The perpendicular parts (usually x and y) a vector can be split into. v_x = v cosθ, v_y = v sinθ.","ch2"],
+  ["Relative motion","The motion of an object as measured from a particular frame of reference, which may itself be moving.","ch2"],
+  ["Air velocity","The velocity of an aircraft relative to the surrounding air.","ch2"],
+  ["Ground velocity","The velocity of an aircraft relative to the ground, the vector sum of air velocity and wind velocity.","ch2"],
+  ["Wind velocity","The velocity of the moving air (wind) relative to the ground.","ch2"],
+  ["Projectile","An object launched into the air that moves under gravity alone, following a curved path.","ch2"],
+  ["Trajectory","The curved path a projectile follows through the air.","ch2"],
+
+  // ---- Chapter 3 ----
+  ["Force","A push or pull on an object that can change its motion. A vector measured in newtons (N).","ch3"],
+  ["Weight","The force of gravity acting on an object's mass. F_g = mg, directed downward.","ch3"],
+  ["Normal force","The support force a surface exerts on an object, directed perpendicular to that surface.","ch3"],
+  ["Friction","A force that opposes the sliding, or attempted sliding, of one surface across another.","ch3"],
+  ["Applied force","A force exerted on an object by a person or another object through direct contact.","ch3"],
+  ["Tension","The pulling force transmitted along a rope, string, cable, or similar connector.","ch3"],
+  ["Net force","The vector sum of all forces acting on an object. F_net determines its acceleration.","ch3"],
+  ["Free body diagram","A simple diagram showing every force acting on a single object as labelled arrows.","ch3"],
+  ["Inertia","The tendency of an object to resist changes in its state of motion. It depends on mass.","ch3"],
+  ["Inertial mass","A measure of an object's inertia, found from the ratio of net force to acceleration. m = F_net / a.","ch3"],
+  ["Newton's first law","An object stays at rest or in uniform motion unless acted on by a net external force. The law of inertia.","ch3"],
+  ["Newton's second law","The acceleration of an object is proportional to the net force and inversely proportional to its mass. F_net = ma.","ch3"],
+  ["Newton's third law","For every action force there is an equal and opposite reaction force acting on a second object.","ch3"],
+  ["Static friction","The friction that prevents a stationary object from starting to move. It varies up to a maximum value.","ch3"],
+  ["Kinetic friction","The friction acting on an object that is already sliding. F_f = μ_k F_N.","ch3"],
+  ["Coefficient of friction","A unitless number (μ) describing how much friction exists between two surfaces. F_f = μ F_N.","ch3"],
+
+  // ---- Chapter 4 ----
+  ["Gravitational force","The attractive force between any two masses. F_g = G m₁ m₂ / r².","ch4"],
+  ["Gravitational mass","The property of matter that determines the strength of its gravitational attraction.","ch4"],
+  ["Gravitational field","The region around a mass where another mass experiences a gravitational force.","ch4"],
+  ["Gravitational field strength","The gravitational force per unit mass at a point. g = GM / r². Units: N/kg.","ch4"],
+  ["Universal gravitational constant","The constant G = 6.67 × 10⁻¹¹ N·m²/kg² used in Newton's law of gravitation.","ch4"],
+  ["True weight","The actual gravitational force on an object, F_g = mg, regardless of its motion.","ch4"],
+  ["Apparent weight","The weight an object seems to have, equal to the normal force on it. F_N = m(g ± a) when accelerating.","ch4"],
+  ["Weightlessness","The sensation of having no weight, felt during free fall when the normal force drops to zero.","ch4"],
+
+  // ---- Chapter 5 ----
+  ["Uniform circular motion","Motion in a circle at constant speed, with acceleration directed toward the centre.","ch5"],
+  ["Centripetal acceleration","The centre-directed acceleration of an object in circular motion. a_c = v² / r.","ch5"],
+  ["Centripetal force","The net inward force that keeps an object moving in a circle. F_c = m v² / r.","ch5"],
+  ["Cycle","One complete trip around a circular path, or one complete oscillation.","ch5"],
+  ["Revolution","One full turn around a circle, equal to 360° or 2π radians.","ch5"],
+  ["Period","The time taken to complete one full cycle or revolution. T = 1 / f.","ch5"],
+  ["Frequency","The number of cycles or revolutions completed per second. Measured in hertz (Hz).","ch5"],
+  ["RPM","Revolutions per minute, a measure of rotational frequency. Divide by 60 to get hertz.","ch5"],
+  ["Kepler's first law","Each planet moves in an elliptical orbit with the Sun at one focus.","ch5"],
+  ["Kepler's second law","A line joining a planet to the Sun sweeps out equal areas in equal time intervals.","ch5"],
+  ["Kepler's third law","The square of a planet's orbital period is proportional to the cube of its orbital radius. T²/r³ = constant.","ch5"],
+  ["Eccentricity","A number describing how stretched an ellipse is. Zero means a perfect circle.","ch5"],
+  ["Astronomical unit","The average distance from Earth to the Sun, about 1.50 × 10¹¹ m. Written as 1 AU.","ch5"],
+  ["Geostationary satellite","A satellite that orbits Earth once per day, staying above the same point on the equator.","ch5"],
+
+  // ---- Chapter 6 ----
+  ["Work","Energy transferred when a force moves an object through a distance. W = Fd cosθ. Units: joules (J).","ch6"],
+  ["Potential energy","Stored energy an object has because of its position or condition.","ch6"],
+  ["Gravitational potential energy","Energy stored because of an object's height in a gravitational field. E_p = mgh.","ch6"],
+  ["Elastic potential energy","Energy stored in a stretched or compressed spring. E_p = ½ k x².","ch6"],
+  ["Kinetic energy","The energy an object has because of its motion. E_k = ½ m v².","ch6"],
+  ["Mechanical energy","The sum of an object's kinetic and potential energy.","ch6"],
+  ["Work energy theorem","The net work done on an object equals its change in kinetic energy. W = ΔE_k.","ch6"],
+  ["Isolated system","A system that exchanges no energy or matter with its surroundings.","ch6"],
+  ["Law of conservation of energy","Energy cannot be created or destroyed, only transformed from one form into another.","ch6"],
+  ["Conservative force","A force, like gravity, for which the work done does not depend on the path taken.","ch6"],
+  ["Non-conservative force","A force, like friction, for which the work done depends on the path and removes mechanical energy.","ch6"],
+  ["Power","The rate at which work is done or energy is transferred. P = W / t. Units: watts (W).","ch6"],
+  ["Efficiency","The ratio of useful energy output to total energy input, often expressed as a percentage.","ch6"],
+
+  // ---- Chapter 7 ----
+  ["Oscillation","One complete cycle of repetitive back-and-forth motion around an equilibrium position.","ch7"],
+  ["Oscillatory motion","Motion that repeats at regular time intervals around an equilibrium position. The period of each cycle stays constant.","ch7"],
+  ["Period","The time required to complete one full cycle of oscillation or wave motion. Measured in seconds. T = 1/f.","ch7"],
+  ["Frequency","The number of cycles completed per second. Measured in hertz (Hz). f = 1/T.","ch7"],
+  ["Equilibrium","The rest position of an oscillating object, where the net force on it is zero.","ch7"],
+  ["Restoring force","The force that pulls an oscillating object back toward equilibrium. It always points opposite to the displacement.","ch7"],
+  ["Hooke's law","The force needed to stretch or compress a spring is directly proportional to its displacement from equilibrium. F_s = -kx.","ch7"],
+  ["Spring constant","A measure of how stiff a spring is. The ratio of applied force to resulting displacement. Units: N/m.","ch7"],
+  ["Simple harmonic motion","Periodic motion where the restoring force, and the acceleration, is directly proportional to displacement from equilibrium and points opposite to it.","ch7"],
+  ["Simple harmonic oscillator","Any object or system that undergoes simple harmonic motion, such as a mass on a spring or a small-angle pendulum.","ch7"],
+  ["Amplitude","The maximum displacement of an oscillating object or wave from its equilibrium position.","ch7"],
+  ["Resonance","The increase in amplitude of vibration that occurs when an object is driven at or near its natural frequency.","ch7"],
+  ["Resonant frequency","The natural frequency at which an object vibrates most easily and absorbs energy with maximum amplitude.","ch7"],
+  ["Forced frequency","The frequency at which an external force drives an object to vibrate. It can differ from the object's natural frequency.","ch7"],
+  ["Mechanical resonance","Resonance in mechanical systems, where energy transfers between a vibrating system and an external driving force.","ch7"],
+
+  // ---- Chapter 8 ----
+  ["Wave","A disturbance that carries energy through a medium or space by oscillation, without permanently moving the medium's matter.","ch8"],
+  ["Medium","The material, solid, liquid, or gas, through which a wave travels. The medium itself does not travel with the wave.","ch8"],
+  ["Wave front","An imaginary line connecting all points on a wave reached at the same instant.","ch8"],
+  ["Incident wave","A wave traveling toward a boundary or barrier, before it reflects.","ch8"],
+  ["Reflected wave","A wave that bounces back after hitting a boundary between two media.","ch8"],
+  ["Ray","A line showing the direction a wave travels. Drawn perpendicular to the wave front.","ch8"],
+  ["Diverging","Describes waves or rays that spread out as they move away from a point source, lowering intensity with distance.","ch8"],
+  ["Wave train","A continuous series of waves with repeating crests and troughs from a continuously vibrating source.","ch8"],
+  ["Pulse","A single disturbance, one crest or trough, traveling through a medium. Its length equals half a wavelength.","ch8"],
+  ["Crest","The highest point of a transverse wave.","ch8"],
+  ["Trough","The lowest point of a transverse wave.","ch8"],
+  ["Maximum","The highest value point of a wave or function, such as a crest.","ch8"],
+  ["Minimum","The lowest value point of a wave or function, such as a trough.","ch8"],
+  ["Transverse wave","A wave where particles of the medium move perpendicular to the direction of travel, like a wave on a string.","ch8"],
+  ["Longitudinal wave","A wave where particles of the medium move parallel to the direction of travel, made of compressions and rarefactions. Sound is one.","ch8"],
+  ["Wave velocity","The speed at which a wave's disturbance travels through a medium. v = fλ.","ch8"],
+  ["Principle of superposition","When two or more waves overlap, the resulting displacement equals the algebraic sum of each wave's displacement.","ch8"],
+  ["Interference","The effect produced when two or more waves overlap in the same medium at the same time.","ch8"],
+  ["Constructive interference","Occurs when two waves overlap in phase. Their amplitudes add, creating a larger wave.","ch8"],
+  ["Destructive interference","Occurs when two waves overlap out of phase. Their amplitudes subtract, reducing the displacement.","ch8"],
+  ["In phase","Two waves or points on a wave reaching maximum and minimum displacement at the same time. Crests and troughs align.","ch8"],
+  ["Phase shift","A change in the timing of a wave's cycle relative to another wave or its own reflection. A fixed-end reflection shifts 180 degrees.","ch8"],
+  ["Standing waves","Wave patterns that appear stationary, formed when an incident wave interferes with its own reflection.","ch8"],
+  ["Nodes or nodal points","Points on a standing wave where destructive interference causes zero displacement at all times.","ch8"],
+  ["Antinodes","Points on a standing wave where constructive interference produces the maximum displacement.","ch8"],
+  ["Fundamental frequency","The lowest frequency at which a system naturally resonates. Also called the first harmonic.","ch8"],
+  ["Overtone","Any resonant frequency above the fundamental frequency. Also called a harmonic.","ch8"],
+  ["Open-pipe air column","An air column open at both ends. Produces all harmonics. Fundamental wavelength: λ = 2L.","ch8"],
+  ["Closed-pipe air column","An air column with one end closed. Produces only odd harmonics. Fundamental wavelength: λ = 4L.","ch8"],
+  ["Two-point-source interference pattern","The pattern from two sources vibrating together, forming lines of constructive maxima and destructive minima.","ch8"],
+  ["Doppler effect","The change in observed frequency caused by relative motion between a wave source and an observer.","ch8"],
+  ["Shock wave","A high pressure wave front created when an object travels through a medium faster than the wave speed in it.","ch8"],
+  ["Sonic boom","The loud sound heard when the shock waves from a faster-than-sound object reach an observer.","ch8"],
+  ["Sound barrier","The point where an object transitions from subsonic to supersonic speed.","ch8"],
+];
+
+/* Equation problems: original numbers, ~2% tolerance check.
+   { id, ch, q, f(ormula), s(ubstitution), a(nswer number), ans(display) } */
+const EQUATIONS = [
+  // Chapter 1
+  {id:'c1q1',ch:'ch1',q:"A cyclist rides 240 m along a straight path in 30 s. What is the cyclist's average velocity?",f:"v_avg = d / t",s:"v_avg = 240 m ÷ 30 s",a:8.0,ans:"8.0 m/s"},
+  {id:'c1q2',ch:'ch1',q:"A car's velocity increases from 12 m/s to 30 m/s in 6.0 s. What is its average acceleration?",f:"a_avg = Δv / t",s:"a_avg = (30 − 12) m/s ÷ 6.0 s",a:3.0,ans:"3.0 m/s²"},
+  {id:'c1q3',ch:'ch1',q:"A car moving at 8.0 m/s accelerates uniformly at 2.5 m/s² over 40 m. What is its final velocity?",f:"v_f² = v_i² + 2ad",s:"v_f = √(8.0² + 2(2.5)(40))",a:16.25,ans:"16 m/s"},
+  {id:'c1q4',ch:'ch1',q:"A train starts from rest and accelerates at 1.2 m/s² for 15 s. How far does it travel?",f:"d = v_i t + ½ a t²",s:"d = 0 + ½(1.2)(15)²",a:135,ans:"135 m"},
+  {id:'c1q5',ch:'ch1',q:"An object speeds up uniformly from 5.0 m/s to 25 m/s over 8.0 s. What distance does it cover?",f:"d = ½(v_i + v_f) t",s:"d = ½(5.0 + 25)(8.0)",a:120,ans:"120 m"},
+  {id:'c1q6',ch:'ch1',q:"A rock is dropped from rest and falls freely for 2.5 s. What is its speed just before landing? (g = 9.81 m/s²)",f:"v_f = g t",s:"v_f = (9.81)(2.5)",a:24.525,ans:"24.5 m/s"},
+  {id:'c1q7',ch:'ch1',q:"A ball is dropped from rest. How far does it fall in 3.0 s? (g = 9.81 m/s²)",f:"d = ½ g t²",s:"d = ½(9.81)(3.0)²",a:44.145,ans:"44 m"},
+  {id:'c1q8',ch:'ch1',q:"During free fall from rest, how long does it take to reach a speed of 19.6 m/s? (g = 9.81 m/s²)",f:"t = v_f / g",s:"t = 19.6 ÷ 9.81",a:1.998,ans:"2.0 s"},
+  {id:'c1q9',ch:'ch1',q:"A car accelerating at 2.0 m/s² reaches a final velocity of 20 m/s after 4.0 s. How far did it travel?",f:"d = v_f t − ½ a t²",s:"d = (20)(4.0) − ½(2.0)(4.0)²",a:64,ans:"64 m"},
+  {id:'c1q10',ch:'ch1',q:"A motorcycle brakes from 28 m/s to 10 m/s at −3.0 m/s². How far does it travel while braking?",f:"d = (v_f² − v_i²) / (2a)",s:"d = (10² − 28²) ÷ (2 × −3.0)",a:114,ans:"114 m"},
+
+  // Chapter 2
+  {id:'c2q1',ch:'ch2',q:"A projectile is launched at 25 m/s at 40° above horizontal. What is the horizontal component of its velocity?",f:"v_x = v cosθ",s:"v_x = 25 cos 40°",a:19.15,ans:"19 m/s"},
+  {id:'c2q2',ch:'ch2',q:"For the same launch (25 m/s at 40°), what is the vertical component of the velocity?",f:"v_y = v sinθ",s:"v_y = 25 sin 40°",a:16.07,ans:"16 m/s"},
+  {id:'c2q3',ch:'ch2',q:"A boat heads east at 6.0 m/s while a current pushes it north at 3.0 m/s. What is the boat's resultant speed?",f:"v_R = √(v_x² + v_y²)",s:"v_R = √(6.0² + 3.0²)",a:6.708,ans:"6.7 m/s"},
+  {id:'c2q4',ch:'ch2',q:"For that boat (6.0 m/s east, 3.0 m/s north), what direction does it travel, in degrees north of east?",f:"θ = tan⁻¹(v_y / v_x)",s:"θ = tan⁻¹(3.0 / 6.0)",a:26.57,ans:"27° N of E"},
+  {id:'c2q5',ch:'ch2',q:"A plane flies north at 200 km/h while a 60 km/h wind blows east. What is the plane's ground speed?",f:"v_g = √(v_air² + v_wind²)",s:"v_g = √(200² + 60²)",a:208.8,ans:"209 km/h"},
+  {id:'c2q6',ch:'ch2',q:"A ball rolls off a 1.8 m high table. How long does it take to hit the floor? (g = 9.81 m/s²)",f:"t = √(2h / g)",s:"t = √(2 × 1.8 ÷ 9.81)",a:0.6059,ans:"0.61 s"},
+  {id:'c2q7',ch:'ch2',q:"A ball is launched horizontally at 4.0 m/s from a 1.8 m high table. How far from the base does it land? (g = 9.81 m/s²)",f:"Δx = v_x √(2h / g)",s:"Δx = 4.0 × √(2 × 1.8 ÷ 9.81)",a:2.424,ans:"2.4 m"},
+  {id:'c2q8',ch:'ch2',q:"A projectile is launched at 20 m/s at 30°. How long is it airborne before returning to launch height? (g = 9.81 m/s²)",f:"t = 2 v sinθ / g",s:"t = 2(20 sin 30°) ÷ 9.81",a:2.039,ans:"2.0 s"},
+  {id:'c2q9',ch:'ch2',q:"For that projectile (20 m/s at 30°), what is its maximum height? (g = 9.81 m/s²)",f:"H = (v sinθ)² / (2g)",s:"H = (20 sin 30°)² ÷ (2 × 9.81)",a:5.097,ans:"5.1 m"},
+  {id:'c2q10',ch:'ch2',q:"A swimmer crosses a river at 1.5 m/s while the current carries them downstream at 0.8 m/s. What is the resultant speed?",f:"v_R = √(v_x² + v_y²)",s:"v_R = √(1.5² + 0.8²)",a:1.7,ans:"1.7 m/s"},
+
+  // Chapter 3
+  {id:'c3q1',ch:'ch3',q:"What net force is needed to accelerate a 4.0 kg cart at 3.0 m/s²?",f:"F_net = m a",s:"F_net = (4.0)(3.0)",a:12,ans:"12 N"},
+  {id:'c3q2',ch:'ch3',q:"What is the weight of an 8.0 kg object? (g = 9.81 m/s²)",f:"F_g = m g",s:"F_g = (8.0)(9.81)",a:78.48,ans:"78.5 N"},
+  {id:'c3q3',ch:'ch3',q:"A 50 N net force acts on a 10 kg box. What is its acceleration?",f:"a = F_net / m",s:"a = 50 ÷ 10",a:5.0,ans:"5.0 m/s²"},
+  {id:'c3q4',ch:'ch3',q:"A 5.0 kg block rests on a level floor with μ = 0.30. What is the maximum friction force? (g = 9.81 m/s²)",f:"F_f = μ m g",s:"F_f = (0.30)(5.0)(9.81)",a:14.715,ans:"14.7 N"},
+  {id:'c3q5',ch:'ch3',q:"A 40 N force pushes a 5.0 kg box against 15 N of friction. What is the box's acceleration?",f:"a = (F_app − F_f) / m",s:"a = (40 − 15) ÷ 5.0",a:5.0,ans:"5.0 m/s²"},
+  {id:'c3q6',ch:'ch3',q:"A 12 kg crate sits on a floor with μ_s = 0.45. What minimum force will start it moving? (g = 9.81 m/s²)",f:"F = μ_s m g",s:"F = (0.45)(12)(9.81)",a:52.974,ans:"53 N"},
+  {id:'c3q7',ch:'ch3',q:"A sliding 2.0 kg puck has kinetic friction with μ_k = 0.25. What is its deceleration? (g = 9.81 m/s²)",f:"a = μ_k g",s:"a = (0.25)(9.81)",a:2.4525,ans:"2.5 m/s²"},
+  {id:'c3q8',ch:'ch3',q:"Two masses hang over a frictionless pulley: 3.0 kg and 2.0 kg. What is the acceleration of the system? (g = 9.81 m/s²)",f:"a = (m₁ − m₂)g / (m₁ + m₂)",s:"a = (3.0 − 2.0)(9.81) ÷ (3.0 + 2.0)",a:1.962,ans:"2.0 m/s²"},
+  {id:'c3q9',ch:'ch3',q:"For that pulley system (3.0 kg and 2.0 kg), what is the rope tension? (g = 9.81 m/s²)",f:"T = 2 m₁ m₂ g / (m₁ + m₂)",s:"T = 2(3.0)(2.0)(9.81) ÷ 5.0",a:23.544,ans:"23.5 N"},
+  {id:'c3q10',ch:'ch3',q:"A 4.0 kg block on a frictionless table is pulled by a 2.0 kg mass hanging over a pulley. What is the acceleration? (g = 9.81 m/s²)",f:"a = m₂ g / (m₁ + m₂)",s:"a = (2.0)(9.81) ÷ (4.0 + 2.0)",a:3.27,ans:"3.3 m/s²"},
+
+  // Chapter 4
+  {id:'c4q1',ch:'ch4',q:"Two masses, 5.0 kg and 8.0 kg, are 0.50 m apart. What gravitational force acts between them? (G = 6.67×10⁻¹¹)",f:"F_g = G m₁ m₂ / r²",s:"F_g = (6.67e−11)(5.0)(8.0) ÷ 0.50²",a:1.0672e-8,ans:"1.07 × 10⁻⁸ N"},
+  {id:'c4q2',ch:'ch4',q:"A planet has mass 6.0×10²⁴ kg and radius 6.4×10⁶ m. What is its surface field strength? (G = 6.67×10⁻¹¹)",f:"g = G M / r²",s:"g = (6.67e−11)(6.0e24) ÷ (6.4e6)²",a:9.77,ans:"9.8 N/kg"},
+  {id:'c4q3',ch:'ch4',q:"A 70 kg astronaut rides an elevator accelerating upward at 2.0 m/s². What is their apparent weight? (g = 9.81 m/s²)",f:"F_N = m(g + a)",s:"F_N = 70(9.81 + 2.0)",a:826.7,ans:"827 N"},
+  {id:'c4q4',ch:'ch4',q:"The same 70 kg astronaut now accelerates downward at 2.0 m/s². What is their apparent weight? (g = 9.81 m/s²)",f:"F_N = m(g − a)",s:"F_N = 70(9.81 − 2.0)",a:546.7,ans:"547 N"},
+  {id:'c4q5',ch:'ch4',q:"A 1000 kg and a 2000 kg mass are 10 m apart. What gravitational force acts between them? (G = 6.67×10⁻¹¹)",f:"F_g = G m₁ m₂ / r²",s:"F_g = (6.67e−11)(1000)(2000) ÷ 10²",a:1.334e-6,ans:"1.33 × 10⁻⁶ N"},
+  {id:'c4q6',ch:'ch4',q:"A planet has mass 4.5×10²³ kg and radius 2.4×10⁶ m. What is its gravitational field strength? (G = 6.67×10⁻¹¹)",f:"g = G M / r²",s:"g = (6.67e−11)(4.5e23) ÷ (2.4e6)²",a:5.21,ans:"5.2 N/kg"},
+  {id:'c4q7',ch:'ch4',q:"Two 50 kg masses attract with a force of 3.3×10⁻⁷ N. How far apart are they? (G = 6.67×10⁻¹¹)",f:"r = √(G m₁ m₂ / F)",s:"r = √((6.67e−11)(50)(50) ÷ 3.3e−7)",a:0.711,ans:"0.71 m"},
+  {id:'c4q8',ch:'ch4',q:"A planet's surface gravity is 3.7 m/s² and its radius is 3.4×10⁶ m. What is its mass? (G = 6.67×10⁻¹¹)",f:"M = g r² / G",s:"M = (3.7)(3.4e6)² ÷ 6.67e−11",a:6.41e23,ans:"6.4 × 10²³ kg"},
+
+  // Chapter 5
+  {id:'c5q1',ch:'ch5',q:"A fan blade spins at a frequency of 2.5 Hz. What is its period?",f:"T = 1 / f",s:"T = 1 ÷ 2.5",a:0.40,ans:"0.40 s"},
+  {id:'c5q2',ch:'ch5',q:"A ball on a 0.80 m string completes one circle every 2.0 s. What is its speed?",f:"v_c = 2πr / T",s:"v_c = 2π(0.80) ÷ 2.0",a:2.513,ans:"2.5 m/s"},
+  {id:'c5q3',ch:'ch5',q:"A car rounds a curve at 6.0 m/s on a circle of radius 3.0 m. What is its centripetal acceleration?",f:"a_c = v² / r",s:"a_c = 6.0² ÷ 3.0",a:12,ans:"12 m/s²"},
+  {id:'c5q4',ch:'ch5',q:"An object moves in a circle of radius 1.5 m with a period of 0.50 s. What is its centripetal acceleration?",f:"a_c = 4π²r / T²",s:"a_c = 4π²(1.5) ÷ 0.50²",a:236.87,ans:"237 m/s²"},
+  {id:'c5q5',ch:'ch5',q:"A 0.50 kg ball has a centripetal acceleration of 12 m/s². What centripetal force acts on it?",f:"F_c = m a_c",s:"F_c = (0.50)(12)",a:6.0,ans:"6.0 N"},
+  {id:'c5q6',ch:'ch5',q:"A 1200 kg car rounds a curve of radius 45 m at 15 m/s. What centripetal force is required?",f:"F_c = m v² / r",s:"F_c = 1200 × 15² ÷ 45",a:6000,ans:"6000 N"},
+  {id:'c5q7',ch:'ch5',q:"A planet orbits the Sun at a radius of 4.0 AU. What is its orbital period in years? (T²/r³ = 1)",f:"T = √(r³)",s:"T = √(4.0³)",a:8.0,ans:"8.0 years"},
+  {id:'c5q8',ch:'ch5',q:"A comet has an orbital period of 27 years. What is its orbital radius in AU? (T²/r³ = 1)",f:"r = ∛(T²)",s:"r = ∛(27²)",a:9.0,ans:"9.0 AU"},
+  {id:'c5q9',ch:'ch5',q:"A satellite orbits a planet (M = 6.0×10²⁴ kg) at radius 7.0×10⁶ m. What is its orbital speed? (G = 6.67×10⁻¹¹)",f:"v = √(G M / r)",s:"v = √((6.67e−11)(6.0e24) ÷ 7.0e6)",a:7561,ans:"7.6 × 10³ m/s"},
+  {id:'c5q10',ch:'ch5',q:"A record turns at 45 RPM with a point 0.15 m from the centre. What is that point's speed?",f:"v_c = 2πr f,  f = RPM / 60",s:"v_c = 2π(0.15)(45 ÷ 60)",a:0.7069,ans:"0.71 m/s"},
+
+  // Chapter 6
+  {id:'c6q1',ch:'ch6',q:"A 50 N force pushes a box 8.0 m in the direction of the force. How much work is done?",f:"W = F d cosθ",s:"W = (50)(8.0) cos 0°",a:400,ans:"400 J"},
+  {id:'c6q2',ch:'ch6',q:"An 80 N force pulls a wagon 5.0 m, directed 30° above horizontal. How much work is done?",f:"W = F d cosθ",s:"W = (80)(5.0) cos 30°",a:346.4,ans:"346 J"},
+  {id:'c6q3',ch:'ch6',q:"How much gravitational potential energy does a 2.0 kg book gain when lifted 5.0 m? (g = 9.81 m/s²)",f:"E_p = m g h",s:"E_p = (2.0)(9.81)(5.0)",a:98.1,ans:"98.1 J"},
+  {id:'c6q4',ch:'ch6',q:"What is the kinetic energy of a 3.0 kg ball moving at 4.0 m/s?",f:"E_k = ½ m v²",s:"E_k = ½(3.0)(4.0)²",a:24,ans:"24 J"},
+  {id:'c6q5',ch:'ch6',q:"A spring with k = 200 N/m is compressed 0.10 m. How much elastic potential energy is stored?",f:"E_p = ½ k x²",s:"E_p = ½(200)(0.10)²",a:1.0,ans:"1.0 J"},
+  {id:'c6q6',ch:'ch6',q:"A machine does 600 J of work in 4.0 s. What is its power output?",f:"P = W / t",s:"P = 600 ÷ 4.0",a:150,ans:"150 W"},
+  {id:'c6q7',ch:'ch6',q:"A motor delivers 240 J of useful energy from 400 J of input energy. What is its efficiency?",f:"efficiency = (E_useful / E_input) × 100%",s:"= (240 ÷ 400) × 100%",a:60,ans:"60 %"},
+  {id:'c6q8',ch:'ch6',q:"An object falls 1.8 m from rest. Using energy conservation, what is its speed at the bottom? (g = 9.81 m/s²)",f:"v = √(2 g h)",s:"v = √(2 × 9.81 × 1.8)",a:5.943,ans:"5.9 m/s"},
+  {id:'c6q9',ch:'ch6',q:"A net 90 J of work is done on a 5.0 kg cart starting from rest. What is its final speed?",f:"v = √(2W / m)",s:"v = √(2 × 90 ÷ 5.0)",a:6.0,ans:"6.0 m/s"},
+  {id:'c6q10',ch:'ch6',q:"A crane lifts a 25 kg load 3.0 m in 5.0 s. What is the crane's power output? (g = 9.81 m/s²)",f:"P = m g h / t",s:"P = (25)(9.81)(3.0) ÷ 5.0",a:147.15,ans:"147 W"},
+
+  // Chapter 7
+  {id:'c7q1',ch:'ch7',q:"A spring with k = 150 N/m is stretched 0.20 m. What is the magnitude of the restoring force?",f:"F_s = k x",s:"F_s = (150)(0.20)",a:30,ans:"30 N"},
+  {id:'c7q2',ch:'ch7',q:"A 0.50 kg mass oscillates on a spring with k = 200 N/m. What is the period?",f:"T = 2π √(m / k)",s:"T = 2π √(0.50 ÷ 200)",a:0.3142,ans:"0.31 s"},
+  {id:'c7q3',ch:'ch7',q:"What is the period of a 1.0 m long pendulum? (g = 9.81 m/s²)",f:"T = 2π √(l / g)",s:"T = 2π √(1.0 ÷ 9.81)",a:2.006,ans:"2.0 s"},
+  {id:'c7q4',ch:'ch7',q:"An oscillator has a period of 0.25 s. What is its frequency?",f:"f = 1 / T",s:"f = 1 ÷ 0.25",a:4.0,ans:"4.0 Hz"},
+  {id:'c7q5',ch:'ch7',q:"A 0.20 kg mass on a spring (k = 80 N/m) oscillates with amplitude 0.10 m. What is its maximum speed?",f:"v_max = A √(k / m)",s:"v_max = 0.10 √(80 ÷ 0.20)",a:2.0,ans:"2.0 m/s"},
+  {id:'c7q6',ch:'ch7',q:"A 0.30 kg mass on a spring oscillates with a period of 0.80 s. What is the spring constant?",f:"k = 4π² m / T²",s:"k = 4π²(0.30) ÷ 0.80²",a:18.5,ans:"18.5 N/m"},
+  {id:'c7q7',ch:'ch7',q:"A pendulum has a period of 1.5 s. How long is it? (g = 9.81 m/s²)",f:"l = g T² / (4π²)",s:"l = (9.81)(1.5²) ÷ 4π²",a:0.559,ans:"0.56 m"},
+  {id:'c7q8',ch:'ch7',q:"A spring with k = 250 N/m supports a force of 45 N. How far is it stretched?",f:"x = F / k",s:"x = 45 ÷ 250",a:0.18,ans:"0.18 m"},
+  {id:'c7q9',ch:'ch7',q:"A 0.30 kg mass on a spring (k = 120 N/m) oscillates with amplitude 0.15 m. What is its maximum speed?",f:"v_max = A √(k / m)",s:"v_max = 0.15 √(120 ÷ 0.30)",a:3.0,ans:"3.0 m/s"},
+  {id:'c7q10',ch:'ch7',q:"What is the frequency of a 0.40 m long pendulum? (g = 9.81 m/s²)",f:"f = 1 / (2π √(l/g))",s:"f = 1 ÷ (2π √(0.40 ÷ 9.81))",a:0.788,ans:"0.79 Hz"},
+
+  // Chapter 8
+  {id:'c8q1',ch:'ch8',q:"A sound wave has a frequency of 256 Hz and a wavelength of 1.3 m. What is its speed?",f:"v = f λ",s:"v = (256)(1.3)",a:332.8,ans:"333 m/s"},
+  {id:'c8q2',ch:'ch8',q:"A 170 Hz sound travels at 340 m/s. What is its wavelength?",f:"λ = v / f",s:"λ = 340 ÷ 170",a:2.0,ans:"2.0 m"},
+  {id:'c8q3',ch:'ch8',q:"A wave travels through water at 1500 m/s with a wavelength of 3.0 m. What is its frequency?",f:"f = v / λ",s:"f = 1500 ÷ 3.0",a:500,ans:"500 Hz"},
+  {id:'c8q4',ch:'ch8',q:"A wave has a frequency of 400 Hz. What is its period?",f:"T = 1 / f",s:"T = 1 ÷ 400",a:0.0025,ans:"2.5 × 10⁻³ s"},
+  {id:'c8q5',ch:'ch8',q:"An open pipe is 0.85 m long. What is the wavelength of its fundamental (n = 1)?",f:"λ = 2L / n",s:"λ = 2(0.85) ÷ 1",a:1.7,ans:"1.7 m"},
+  {id:'c8q6',ch:'ch8',q:"A pipe closed at one end is 0.30 m long. What is the wavelength of its fundamental (n = 1)?",f:"λ = 4L / n",s:"λ = 4(0.30) ÷ 1",a:1.2,ans:"1.2 m"},
+  {id:'c8q7',ch:'ch8',q:"An open pipe 0.50 m long resonates at its fundamental. What frequency is produced? (v = 340 m/s)",f:"f = v / (2L)",s:"f = 340 ÷ (2 × 0.50)",a:340,ans:"340 Hz"},
+  {id:'c8q8',ch:'ch8',q:"A closed pipe 0.20 m long resonates at its fundamental. What frequency is produced? (v = 340 m/s)",f:"f = v / (4L)",s:"f = 340 ÷ (4 × 0.20)",a:425,ans:"425 Hz"},
+  {id:'c8q9',ch:'ch8',q:"A 500 Hz siren moves toward a stationary observer at 30 m/s. What frequency is heard? (v = 340 m/s)",f:"f′ = f v / (v − v_s)",s:"f′ = 500 × 340 ÷ (340 − 30)",a:548.4,ans:"548 Hz"},
+  {id:'c8q10',ch:'ch8',q:"A 500 Hz siren moves away from a stationary observer at 30 m/s. What frequency is heard? (v = 340 m/s)",f:"f′ = f v / (v + v_s)",s:"f′ = 500 × 340 ÷ (340 + 30)",a:459.5,ans:"460 Hz"},
+];
+
+/* Reference data, organized by chapter */
+const REFERENCE = [
+  {ch:'ch1', items:[
+    ["Average velocity","v_avg = d / t"],
+    ["Average acceleration","a_avg = Δv / t"],
+    ["Displacement (from v_i)","d = v_i t + ½ a t²"],
+    ["Displacement (from v_f)","d = v_f t − ½ a t²"],
+    ["Displacement (average v)","d = ½(v_i + v_f) t"],
+    ["Final velocity","v_f² = v_i² + 2 a d"],
+    ["Free fall","a = g = 9.81 m/s² down"],
+  ]},
+  {ch:'ch2', items:[
+    ["x component","v_x = v cosθ"],
+    ["y component","v_y = v sinθ"],
+    ["Resultant magnitude","v_R = √(v_x² + v_y²)"],
+    ["Resultant direction","θ = tan⁻¹(v_y / v_x)"],
+    ["Relative velocity","v_ground = v_air + v_wind"],
+    ["Projectile (horizontal)","Δx = v_x t,  h = ½ g t²"],
+  ]},
+  {ch:'ch3', items:[
+    ["Newton's second law","F_net = m a"],
+    ["Weight","F_g = m g"],
+    ["Friction","F_f = μ F_N"],
+    ["Pulley acceleration","a = (m₁ − m₂)g / (m₁ + m₂)"],
+  ]},
+  {ch:'ch4', items:[
+    ["Law of gravitation","F_g = G m₁ m₂ / r²"],
+    ["Field strength","g = G M / r²"],
+    ["Apparent weight","F_N = m(g ± a)"],
+  ]},
+  {ch:'ch5', items:[
+    ["Period","T = 1 / f"],
+    ["Orbital / circular speed","v_c = 2πr / T"],
+    ["Centripetal acceleration","a_c = v² / r = 4π²r / T²"],
+    ["Centripetal force","F_c = m a_c"],
+    ["Kepler's third law","T² / r³ = constant"],
+    ["Satellite speed","v = √(G M / r)"],
+  ]},
+  {ch:'ch6', items:[
+    ["Work","W = F d cosθ"],
+    ["Gravitational P.E.","E_p = m g h"],
+    ["Elastic P.E.","E_p = ½ k x²"],
+    ["Kinetic energy","E_k = ½ m v²"],
+    ["Work–energy theorem","W = ΔE_k"],
+    ["Power","P = W / t"],
+    ["Efficiency","η = E_useful / E_input"],
+  ]},
+  {ch:'ch7', items:[
+    ["Hooke's law","F_s = −k x"],
+    ["Mass–spring period","T = 2π √(m / k)"],
+    ["Pendulum period","T = 2π √(l / g)"],
+    ["Frequency","f = 1 / T"],
+    ["Energy / max speed","½ k A² = ½ m v_max²"],
+  ]},
+  {ch:'ch8', items:[
+    ["Wave equation","v = f λ"],
+    ["Period","T = 1 / f"],
+    ["Open-pipe resonance","λ = 2L / n  (all n)"],
+    ["Closed-pipe resonance","λ = 4L / n  (odd n)"],
+    ["Doppler effect","f′ = f v / (v ± v_s)"],
+  ]},
+];
+const CONSTANTS = [
+  ["g = 9.81 m/s²","Acceleration due to gravity near Earth's surface"],
+  ["G = 6.67 × 10⁻¹¹ N·m²/kg²","Universal gravitational constant"],
+  ["v_sound ≈ 340 m/s","Speed of sound in air"],
+  ["1 AU = 1.50 × 10¹¹ m","Average Earth–Sun distance"],
+];
+
+/* ============================================================
+   STATE + PERSISTENCE (localStorage)
+   ============================================================ */
+function defaultState(){
+  const defs = {}, eqs = {};
+  CHAPTERS.forEach(c => { defs[c.id] = {correct:0,total:0}; eqs[c.id] = {correct:0,total:0}; });
+  return { flashcards:{}, definitions:defs, equations:eqs };
+}
+let state = defaultState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    const base = defaultState();
+    state = {
+      flashcards: parsed.flashcards || {},
+      definitions: Object.assign(base.definitions, parsed.definitions || {}),
+      equations: Object.assign(base.equations, parsed.equations || {}),
+    };
+    CHAPTERS.forEach(c => {
+      state.definitions[c.id] = Object.assign({correct:0,total:0}, state.definitions[c.id]);
+      state.equations[c.id] = Object.assign({correct:0,total:0}, state.equations[c.id]);
+    });
+  } catch(e){ state = defaultState(); }
+}
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.error('Could not save progress', e); }
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $ = id => document.getElementById(id);
+function el(tag, cls, html){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(html != null) e.innerHTML = html;
+  return e;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function termsInChapter(ch){
+  return TERMS.map((t,i)=>({t,i})).filter(o => o.t[2]===ch);
+}
+function checkNumeric(input, answer){
+  const v = parseFloat(String(input).replace(/[, ]/g,'').replace(/×?10\^?/,'e'));
+  if(isNaN(v)) return false;
+  // ~2-3% relative tolerance, generous enough to accept rounding to 2-3 sig figs
+  const tol = Math.max(Math.abs(answer)*0.03, 1e-12);
+  return Math.abs(v - answer) <= tol;
+}
+function solutionHTML(p){
+  return `<div class="solution">
+    <div class="sol-line"><span class="label">Formula</span><span class="value">${escapeHtml(p.f)}</span></div>
+    <div class="sol-line"><span class="label">Substitute</span><span class="value">${escapeHtml(p.s)}</span></div>
+    <div class="sol-line"><span class="label">Answer</span><span class="value answer">${escapeHtml(p.ans)}</span></div>
+  </div>`;
+}
+/* Build a multiple-choice definition question for a term index */
+function makeDefQuestion(termIndex){
+  const [term, def, ch] = TERMS[termIndex];
+  let pool = termsInChapter(ch).filter(o => o.i !== termIndex);
+  if(pool.length < 3) pool = TERMS.map((t,i)=>({t,i})).filter(o => o.i !== termIndex);
+  const distractors = shuffle(pool).slice(0,3).map(o => o.t[1]);
+  const options = shuffle([def, ...distractors]);
+  return { type:'def', ch, prompt:term, context:'Which definition matches this term?', options, correct: options.indexOf(def) };
+}
+
+/* ============================================================
+   SCREEN NAVIGATION
+   ============================================================ */
+function showScreen(name){
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === name));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = $('screen-' + name);
+  // restart entrance animation
+  void target.offsetWidth;
+  target.classList.add('active');
+  if(name === 'dashboard') renderDashboard();
+  if(name === 'reference') renderReference();
+}
+$('nav').addEventListener('click', e => {
+  const btn = e.target.closest('.nav-btn');
+  if(btn) showScreen(btn.dataset.screen);
+});
+
+/* Reusable chapter chip row. includeAll adds an "All" option. */
+function buildChips(container, {includeAll, onSelect, defaultId}){
+  container.innerHTML = '';
+  let selected = defaultId || (includeAll ? 'all' : null);
+  const make = (id, label) => {
+    const b = el('button', 'chip' + (id===selected ? ' active' : ''), label);
+    b.dataset.ch = id;
+    b.addEventListener('click', () => {
+      selected = id;
+      [...container.children].forEach(c => c.classList.toggle('active', c.dataset.ch === id));
+      onSelect(id);
+    });
+    container.appendChild(b);
+  };
+  if(includeAll) make('all', 'All chapters');
+  CHAPTERS.forEach(c => make(c.id, chShort(c.id) + ' ' + c.short));
+  return () => selected;
+}
+
+/* ============================================================
+   FLASHCARDS
+   ============================================================ */
+const fc = { deck:[], pos:0, filter:'all' };
+const fcEls = {
+  card:$('card'), termText:$('term-text'), defText:$('def-text'),
+  bodyFront:$('body-front'), bodyBack:$('body-back'),
+  tagFront:$('tag-front'), tagBack:$('tag-back'),
+  posLabel:$('pos-label'), filterLabel:$('filter-label'), progressFill:$('progress-fill'),
+  knownCount:$('known-count'), learningCount:$('learning-count'),
+  study:$('fc-study'), empty:$('fc-empty'),
+};
+function fcBuildDeck(){
+  fc.deck = TERMS.map((_,i)=>i).filter(i => fc.filter==='all' || TERMS[i][2]===fc.filter);
+  fc.pos = 0;
+}
+function fcFill(){
+  const idx = fc.deck[fc.pos];
+  const [term, def, ch] = TERMS[idx];
+  fcEls.termText.textContent = term;
+  fcEls.defText.textContent = def;
+  fcEls.tagFront.textContent = chShort(ch);
+  fcEls.tagBack.textContent = chShort(ch);
+  fcEls.posLabel.textContent = `Card ${fc.pos+1} of ${fc.deck.length}`;
+  fcEls.filterLabel.textContent = fc.filter==='all' ? 'All terms' : CH_MAP[fc.filter].title;
+  fcEls.progressFill.style.width = `${((fc.pos+1)/fc.deck.length)*100}%`;
+}
+function fcStats(){
+  const vals = Object.values(state.flashcards);
+  fcEls.knownCount.textContent = vals.filter(v=>v==='known').length;
+  fcEls.learningCount.textContent = vals.filter(v=>v==='learning').length;
+}
+function fcRender(){
+  if(fc.deck.length === 0){
+    fcEls.study.classList.add('hidden'); fcEls.empty.classList.remove('hidden');
+    return;
+  }
+  fcEls.study.classList.remove('hidden'); fcEls.empty.classList.add('hidden');
+  fcEls.card.classList.remove('flipped');
+  fcFill(); fcStats();
+}
+function fcFlip(){ fcEls.card.classList.toggle('flipped'); }
+function fcMoveTo(newPos){
+  fcEls.bodyFront.classList.add('content-hidden');
+  fcEls.bodyBack.classList.add('content-hidden');
+  setTimeout(() => {
+    fc.pos = newPos;
+    fcEls.card.classList.remove('flipped');
+    fcFill();
+    requestAnimationFrame(() => {
+      fcEls.bodyFront.classList.remove('content-hidden');
+      fcEls.bodyBack.classList.remove('content-hidden');
+    });
+  }, 160);
+}
+function fcNext(){ if(fc.deck.length) fcMoveTo((fc.pos+1)%fc.deck.length); }
+function fcPrev(){ if(fc.deck.length) fcMoveTo((fc.pos-1+fc.deck.length)%fc.deck.length); }
+function fcShuffle(){ fc.deck = shuffle(fc.deck); fcMoveTo(0); }
+function fcRate(status){
+  const idx = fc.deck[fc.pos];
+  state.flashcards[TERMS[idx][0]] = status;
+  fcStats(); saveState();
+  setTimeout(() => { if(fc.deck.length > 1) fcNext(); }, 220);
+}
+fcEls.card.addEventListener('click', fcFlip);
+$('flip-btn').addEventListener('click', fcFlip);
+$('next-btn').addEventListener('click', fcNext);
+$('prev-btn').addEventListener('click', fcPrev);
+$('shuffle-btn').addEventListener('click', fcShuffle);
+$('learning-btn').addEventListener('click', () => fcRate('learning'));
+$('known-btn').addEventListener('click', () => fcRate('known'));
+let touchStartX = null;
+fcEls.card.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+fcEls.card.addEventListener('touchend', e => {
+  if(touchStartX === null) return;
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(Math.abs(dx) > 50){ dx < 0 ? fcNext() : fcPrev(); }
+  touchStartX = null;
+});
+document.addEventListener('keydown', e => {
+  if(!$('screen-flashcards').classList.contains('active')) return;
+  if(/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+  if(e.key === 'ArrowRight') fcNext();
+  if(e.key === 'ArrowLeft') fcPrev();
+  if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); fcFlip(); }
+});
+
+/* ============================================================
+   DEFINITIONS TEST
+   ============================================================ */
+const defState = { filter:'all', questions:[], idx:0, correct:0, getSel:null };
+defState.getSel = buildChips($('def-chips'), {
+  includeAll:true, defaultId:'all', onSelect:id => { defState.filter = id; }
+});
+$('def-start').addEventListener('click', startDefTest);
+function startDefTest(){
+  const filter = defState.getSel();
+  let indices = TERMS.map((_,i)=>i).filter(i => filter==='all' || TERMS[i][2]===filter);
+  indices = shuffle(indices).slice(0, Math.min(10, indices.length));
+  defState.questions = indices.map(makeDefQuestion);
+  defState.idx = 0; defState.correct = 0;
+  $('def-setup').classList.add('hidden');
+  $('def-result').classList.add('hidden');
+  $('def-quiz').classList.remove('hidden');
+  renderDefQuestion();
+}
+function renderDefQuestion(){
+  const q = defState.questions[defState.idx];
+  const n = defState.questions.length;
+  const wrap = $('def-quiz');
+  wrap.innerHTML = `
+    <div class="meta-row"><span>Question ${defState.idx+1} of ${n}</span><span>${escapeHtml(CH_MAP[q.ch].title)}</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${(defState.idx/n)*100}%"></div></div>
+    <div class="panel">
+      <span class="q-chaplabel">${escapeHtml(chShort(q.ch))} term</span>
+      <p class="q-prompt">${escapeHtml(q.prompt)}</p>
+      <p class="q-context">${escapeHtml(q.context)}</p>
+      <div class="options" id="def-options"></div>
+    </div>
+    <div id="def-after"></div>`;
+  const opts = $('def-options');
+  q.options.forEach((text, i) => {
+    const b = el('button','option', escapeHtml(text));
+    b.addEventListener('click', () => answerDef(i));
+    opts.appendChild(b);
+  });
+}
+function answerDef(choice){
+  const q = defState.questions[defState.idx];
+  const buttons = [...$('def-options').children];
+  const isRight = choice === q.correct;
+  buttons.forEach((b,i) => {
+    b.disabled = true;
+    if(i === q.correct) b.classList.add('correct');
+    else if(i === choice) b.classList.add('wrong');
+    else b.classList.add('muted');
+  });
+  state.definitions[q.ch].total++;
+  if(isRight){ state.definitions[q.ch].correct++; defState.correct++; }
+  saveState();
+  const after = $('def-after');
+  const last = defState.idx === defState.questions.length - 1;
+  after.innerHTML = `<div class="feedback ${isRight?'good':'bad'}">${isRight?'<b>Correct.</b> Nicely done.':'<b>Not quite.</b> The correct definition is highlighted above.'}</div>`;
+  const nextBtn = el('button','btn btn-primary btn-block', last ? 'See results' : 'Next question');
+  nextBtn.style.marginTop = '14px';
+  nextBtn.addEventListener('click', () => {
+    if(last){ showDefResult(); }
+    else { defState.idx++; renderDefQuestion(); }
+  });
+  after.appendChild(nextBtn);
+}
+function showDefResult(){
+  $('def-quiz').classList.add('hidden');
+  const r = $('def-result'); r.classList.remove('hidden');
+  const n = defState.questions.length;
+  const pct = Math.round((defState.correct/n)*100);
+  r.innerHTML = `
+    <div class="panel start-card">
+      <p class="eyebrow">Definitions test complete</p>
+      <div class="score-ring">${pct}%</div>
+      <p class="score-sub">${defState.correct} of ${n} correct</p>
+      <p class="lead">${pct>=80?'Strong recall of these terms.':pct>=50?'Getting there — review the misses and try again.':'Spend more time on the flashcards for this chapter.'}</p>
+      <button class="btn btn-primary" id="def-again">Try again</button>
+    </div>`;
+  $('def-again').addEventListener('click', () => {
+    $('def-result').classList.add('hidden');
+    $('def-setup').classList.remove('hidden');
+  });
+}
+
+/* ============================================================
+   EQUATION TEST
+   ============================================================ */
+const eqState = { chapter:null, problems:[], idx:0, correct:0, getSel:null };
+eqState.getSel = buildChips($('eq-chips'), {
+  includeAll:false, defaultId:null, onSelect:id => {
+    eqState.chapter = id;
+    const btn = $('eq-start');
+    btn.disabled = false;
+    btn.textContent = 'Start ' + chShort(id) + ' equation test';
+  }
+});
+$('eq-start').addEventListener('click', startEqTest);
+function startEqTest(){
+  if(!eqState.chapter) return;
+  eqState.problems = shuffle(EQUATIONS.filter(p => p.ch === eqState.chapter));
+  eqState.idx = 0; eqState.correct = 0;
+  $('eq-setup').classList.add('hidden');
+  $('eq-result').classList.add('hidden');
+  $('eq-quiz').classList.remove('hidden');
+  renderEqQuestion();
+}
+function renderEqQuestion(){
+  const p = eqState.problems[eqState.idx];
+  const n = eqState.problems.length;
+  const wrap = $('eq-quiz');
+  wrap.innerHTML = `
+    <div class="meta-row"><span>Problem ${eqState.idx+1} of ${n}</span><span>${escapeHtml(CH_MAP[p.ch].title)}</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${(eqState.idx/n)*100}%"></div></div>
+    <div class="panel">
+      <span class="q-chaplabel">${escapeHtml(chShort(p.ch))}</span>
+      <p class="q-prompt">${escapeHtml(p.q)}</p>
+      <div class="answer-row">
+        <input class="answer-input" id="eq-input" type="text" inputmode="decimal" placeholder="Your answer (e.g. 9.8 or 1.1e-8)" autocomplete="off">
+        <button class="btn btn-primary" id="eq-check">Check</button>
+      </div>
+      <div id="eq-after"></div>
+    </div>`;
+  const input = $('eq-input');
+  input.focus();
+  input.addEventListener('keydown', e => { if(e.key === 'Enter') submitEq(); });
+  $('eq-check').addEventListener('click', submitEq);
+}
+function submitEq(){
+  const p = eqState.problems[eqState.idx];
+  const input = $('eq-input');
+  if(input.disabled) return;
+  const isRight = checkNumeric(input.value, p.a);
+  input.disabled = true;
+  input.classList.add(isRight ? 'correct' : 'wrong');
+  $('eq-check').disabled = true;
+  state.equations[p.ch].total++;
+  if(isRight){ state.equations[p.ch].correct++; eqState.correct++; }
+  saveState();
+  const after = $('eq-after');
+  const last = eqState.idx === eqState.problems.length - 1;
+  after.innerHTML = `<div class="feedback ${isRight?'good':'bad'}">${isRight?'<b>Correct.</b> Within tolerance.':'<b>Not quite.</b> Check the worked solution below.'}</div>` + solutionHTML(p);
+  const nextBtn = el('button','btn btn-primary btn-block', last ? 'See results' : 'Next problem');
+  nextBtn.style.marginTop = '14px';
+  nextBtn.addEventListener('click', () => {
+    if(last){ showEqResult(); }
+    else { eqState.idx++; renderEqQuestion(); }
+  });
+  after.appendChild(nextBtn);
+}
+function showEqResult(){
+  $('eq-quiz').classList.add('hidden');
+  const r = $('eq-result'); r.classList.remove('hidden');
+  const n = eqState.problems.length;
+  const pct = Math.round((eqState.correct/n)*100);
+  r.innerHTML = `
+    <div class="panel start-card">
+      <p class="eyebrow">${escapeHtml(CH_MAP[eqState.chapter].title)} complete</p>
+      <div class="score-ring">${pct}%</div>
+      <p class="score-sub">${eqState.correct} of ${n} correct</p>
+      <p class="lead">${pct>=80?'You have these formulas down.':pct>=50?'Solid start — revisit the ones you missed.':'Review the reference sheet, then try this chapter again.'}</p>
+      <button class="btn btn-primary" id="eq-again">Back to chapters</button>
+    </div>`;
+  $('eq-again').addEventListener('click', () => {
+    $('eq-result').classList.add('hidden');
+    $('eq-setup').classList.remove('hidden');
+  });
+}
+
+/* ============================================================
+   CUMULATIVE TEST
+   ============================================================ */
+const CUM_N = 22;
+$('cum-count-preview').textContent = CUM_N;
+const cumState = { questions:[], idx:0, correct:0, breakdown:{} };
+$('cum-start').addEventListener('click', startCumTest);
+function startCumTest(){
+  // Pool: all equations + a definition question per term
+  const eqPool = EQUATIONS.map(p => ({type:'eq', ch:p.ch, problem:p}));
+  const defPool = TERMS.map((_,i)=>i).map(i => ({type:'defseed', ch:TERMS[i][2], seed:i}));
+  const mixed = shuffle([...eqPool, ...defPool]).slice(0, CUM_N);
+  cumState.questions = mixed.map(item => item.type === 'eq' ? item : makeDefQuestion(item.seed));
+  cumState.idx = 0; cumState.correct = 0; cumState.breakdown = {};
+  CHAPTERS.forEach(c => cumState.breakdown[c.id] = {correct:0,total:0});
+  $('cum-setup').classList.add('hidden');
+  $('cum-result').classList.add('hidden');
+  $('cum-quiz').classList.remove('hidden');
+  renderCumQuestion();
+}
+function renderCumQuestion(){
+  const q = cumState.questions[cumState.idx];
+  const n = cumState.questions.length;
+  const wrap = $('cum-quiz');
+  const head = `
+    <div class="meta-row"><span>Question ${cumState.idx+1} of ${n}</span><span>${escapeHtml(CH_MAP[q.ch].title)}</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${(cumState.idx/n)*100}%"></div></div>`;
+  if(q.type === 'eq'){
+    const p = q.problem;
+    wrap.innerHTML = head + `
+      <div class="panel">
+        <span class="q-chaplabel">${escapeHtml(chShort(q.ch))} · equation</span>
+        <p class="q-prompt">${escapeHtml(p.q)}</p>
+        <div class="answer-row">
+          <input class="answer-input" id="cum-input" type="text" inputmode="decimal" placeholder="Your answer" autocomplete="off">
+          <button class="btn btn-primary" id="cum-check">Check</button>
+        </div>
+        <div id="cum-after"></div>
+      </div>`;
+    const input = $('cum-input'); input.focus();
+    input.addEventListener('keydown', e => { if(e.key==='Enter') submitCumEq(); });
+    $('cum-check').addEventListener('click', submitCumEq);
+  } else {
+    wrap.innerHTML = head + `
+      <div class="panel">
+        <span class="q-chaplabel">${escapeHtml(chShort(q.ch))} · definition</span>
+        <p class="q-prompt">${escapeHtml(q.prompt)}</p>
+        <p class="q-context">${escapeHtml(q.context)}</p>
+        <div class="options" id="cum-options"></div>
+      </div>
+      <div id="cum-after"></div>`;
+    const opts = $('cum-options');
+    q.options.forEach((text,i) => {
+      const b = el('button','option', escapeHtml(text));
+      b.addEventListener('click', () => submitCumDef(i));
+      opts.appendChild(b);
+    });
+  }
+}
+function recordCum(ch, isRight, type){
+  cumState.breakdown[ch].total++;
+  if(isRight) cumState.breakdown[ch].correct++;
+  const bucket = type === 'eq' ? state.equations : state.definitions;
+  bucket[ch].total++;
+  if(isRight) bucket[ch].correct++;
+  if(isRight) cumState.correct++;
+  saveState();
+}
+function cumNextButton(container, isRight, extraHTML){
+  const last = cumState.idx === cumState.questions.length - 1;
+  container.innerHTML = `<div class="feedback ${isRight?'good':'bad'}">${isRight?'<b>Correct.</b>':'<b>Not quite.</b>'}</div>` + (extraHTML||'');
+  const btn = el('button','btn btn-primary btn-block', last ? 'See results' : 'Next question');
+  btn.style.marginTop = '14px';
+  btn.addEventListener('click', () => {
+    if(last){ showCumResult(); } else { cumState.idx++; renderCumQuestion(); }
+  });
+  container.appendChild(btn);
+}
+function submitCumEq(){
+  const q = cumState.questions[cumState.idx];
+  const input = $('cum-input');
+  if(input.disabled) return;
+  const isRight = checkNumeric(input.value, q.problem.a);
+  input.disabled = true; input.classList.add(isRight?'correct':'wrong');
+  $('cum-check').disabled = true;
+  recordCum(q.ch, isRight, 'eq');
+  cumNextButton($('cum-after'), isRight, solutionHTML(q.problem));
+}
+function submitCumDef(choice){
+  const q = cumState.questions[cumState.idx];
+  const buttons = [...$('cum-options').children];
+  const isRight = choice === q.correct;
+  buttons.forEach((b,i) => {
+    b.disabled = true;
+    if(i === q.correct) b.classList.add('correct');
+    else if(i === choice) b.classList.add('wrong');
+    else b.classList.add('muted');
+  });
+  recordCum(q.ch, isRight, 'def');
+  cumNextButton($('cum-after'), isRight, '');
+}
+function showCumResult(){
+  $('cum-quiz').classList.add('hidden');
+  const r = $('cum-result'); r.classList.remove('hidden');
+  const n = cumState.questions.length;
+  const pct = Math.round((cumState.correct/n)*100);
+  let bars = '';
+  CHAPTERS.forEach(c => {
+    const b = cumState.breakdown[c.id];
+    if(b.total === 0) return;
+    const p = Math.round((b.correct/b.total)*100);
+    bars += `<div class="bar-row">
+      <div class="bar-label"><span class="name">${escapeHtml(CH_MAP[c.id].title)}</span><span class="val">${b.correct}/${b.total}</span></div>
+      <div class="bar-track"><div class="bar-fill defs" style="width:${p}%"></div></div>
+    </div>`;
+  });
+  r.innerHTML = `
+    <div class="panel start-card">
+      <p class="eyebrow">Cumulative test complete</p>
+      <div class="score-ring">${pct}%</div>
+      <p class="score-sub">${cumState.correct} of ${n} correct</p>
+    </div>
+    <div class="section-spacer"></div>
+    <h3 style="margin:22px 0 14px;">Breakdown by chapter</h3>
+    ${bars}
+    <button class="btn btn-primary btn-block" id="cum-again" style="margin-top:8px;">Take another test</button>`;
+  $('cum-again').addEventListener('click', () => {
+    $('cum-result').classList.add('hidden');
+    $('cum-setup').classList.remove('hidden');
+  });
+}
+
+/* ============================================================
+   REFERENCE
+   ============================================================ */
+let referenceRendered = false;
+function renderReference(){
+  if(referenceRendered) return;
+  referenceRendered = true;
+  const wrap = $('ref-content');
+  let html = `<div class="ref-section"><h3>Constants &amp; data sheet</h3><div class="const-grid">`;
+  CONSTANTS.forEach(([k,d]) => { html += `<div class="const-card"><div class="k">${escapeHtml(k)}</div><div class="d">${escapeHtml(d)}</div></div>`; });
+  html += `</div></div>`;
+  REFERENCE.forEach(sec => {
+    html += `<div class="ref-section"><h3>${escapeHtml(chShort(sec.ch) + ' · ' + CH_MAP[sec.ch].title)}</h3><ul class="ref-list">`;
+    sec.items.forEach(([desc,eq]) => { html += `<li><span class="desc">${escapeHtml(desc)}</span><span class="eq">${escapeHtml(eq)}</span></li>`; });
+    html += `</ul></div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function renderDashboard(){
+  const wrap = $('dash-content');
+  let html = '';
+  CHAPTERS.forEach(c => {
+    const terms = termsInChapter(c.id);
+    const known = terms.filter(o => state.flashcards[o.t[0]] === 'known').length;
+    const flashPct = terms.length ? Math.round((known/terms.length)*100) : 0;
+    const d = state.definitions[c.id], e = state.equations[c.id];
+    const defPct = d.total ? Math.round((d.correct/d.total)*100) : 0;
+    const eqPct = e.total ? Math.round((e.correct/e.total)*100) : 0;
+    html += `<div class="dash-chapter">
+      <h3>${escapeHtml(chShort(c.id) + ' · ' + c.title)}</h3>
+      <div class="bar-row">
+        <div class="bar-label"><span class="name" style="font-size:13px;font-weight:500;">Flashcards known</span><span class="val">${known}/${terms.length}</span></div>
+        <div class="bar-track"><div class="bar-fill flash" style="width:${flashPct}%"></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="name" style="font-size:13px;font-weight:500;">Definitions accuracy</span><span class="val">${d.total?defPct+'%':'—'}</span></div>
+        <div class="bar-track"><div class="bar-fill defs" style="width:${defPct}%"></div></div>
+      </div>
+      <div class="bar-row" style="margin-bottom:0;">
+        <div class="bar-label"><span class="name" style="font-size:13px;font-weight:500;">Equation accuracy</span><span class="val">${e.total?eqPct+'%':'—'}</span></div>
+        <div class="bar-track"><div class="bar-fill eqs" style="width:${eqPct}%"></div></div>
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = html;
+}
+$('reset-all').addEventListener('click', () => {
+  if(!confirm('Reset all progress across flashcards, definitions, and equation tests? This cannot be undone.')) return;
+  state = defaultState();
+  saveState();
+  fcStats();
+  renderDashboard();
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+(function init(){
+  loadState();
+  // flashcard chapter chips
+  buildChips($('fc-chips'), {
+    includeAll:true, defaultId:'all', onSelect:id => { fc.filter = id; fcBuildDeck(); fcRender(); }
+  });
+  fcBuildDeck();
+  fcRender();
+  $('loading').classList.add('hidden');
+  $('main').classList.remove('hidden');
+  document.body.classList.add('ready');
+})();
+</script>
+</body>
+</html>
